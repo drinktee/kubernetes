@@ -1,0 +1,106 @@
+/*
+Copyright 2014 The Kubernetes Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package baidubce
+
+import (
+	"encoding/json"
+	"io"
+	"io/ioutil"
+
+	baidubce "github.com/drinktee/bce-sdk-go/bce"
+	"github.com/drinktee/bce-sdk-go/clientset"
+	"k8s.io/kubernetes/pkg/cloudprovider"
+)
+
+// ProviderName is the name of this cloud provider.
+const ProviderName = "baidubce"
+
+// BCECloud is an implementation of Interface, LoadBalancer and Instances for Baidu Compute Engine.
+type BCECloud struct {
+	CloudConfig
+	clientSet *clientset.Clientset
+}
+
+// CloudConfig wraps the settings for the BCE cloud provider.
+type CloudConfig struct {
+	ClusterID       string `json:"clusterId"`
+	ClusterName     string `json:"clusterName"`
+	AccessKeyID     string `json:"AccessKeyID"`
+	SecretAccessKey string `json:"SecretAccessKey"`
+	Region          string `json:"region"`
+}
+
+func init() {
+	cloudprovider.RegisterCloudProvider(ProviderName, NewBCECloud)
+}
+
+// NewBCECloud returns a Cloud with initialized clients
+func NewBCECloud(configReader io.Reader) (cloudprovider.Interface, error) {
+	var bce BCECloud
+	configContents, err := ioutil.ReadAll(configReader)
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(configContents, &bce)
+	if err != nil {
+		return nil, err
+	}
+	cred := baidubce.NewCredentials(bce.AccessKeyID, bce.SecretAccessKey)
+	bceConfig := baidubce.NewConfig(cred)
+	bceConfig.Region = bce.Region
+	bceConfig.Timeout = 5
+	bce.clientSet, err = clientset.NewFromConfig(bceConfig)
+	if err != nil {
+		return nil, err
+	}
+	return &bce, nil
+}
+
+// LoadBalancer returns a balancer interface. Also returns true if the interface is supported, false otherwise.
+func (bc *BCECloud) LoadBalancer() (cloudprovider.LoadBalancer, bool) {
+	return nil, false
+}
+
+// Instances returns an instances interface. Also returns true if the interface is supported, false otherwise.
+func (bc *BCECloud) Instances() (cloudprovider.Instances, bool) {
+	return bc, true
+}
+
+// Zones returns a zones interface. Also returns true if the interface is supported, false otherwise.
+func (bc *BCECloud) Zones() (cloudprovider.Zones, bool) {
+	return bc, true
+}
+
+// Clusters returns a clusters interface.  Also returns true if the interface is supported, false otherwise.
+func (bc *BCECloud) Clusters() (cloudprovider.Clusters, bool) {
+	return nil, false
+}
+
+// Routes returns a routes interface along with whether the interface is supported.
+func (bc *BCECloud) Routes() (cloudprovider.Routes, bool) {
+	return nil, false
+}
+
+// ScrubDNS provides an opportunity for cloud-provider-specific code to process DNS settings for pods.
+func (bc *BCECloud) ScrubDNS(nameservers, searches []string) (nsOut, srchOut []string) {
+	return nameservers, searches
+}
+
+// ProviderName returns the cloud provider ID.
+func (bc *BCECloud) ProviderName() string {
+	return ProviderName
+}
