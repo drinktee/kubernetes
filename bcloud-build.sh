@@ -37,7 +37,9 @@ build $*
 # find -name ".svn" -prune -exec rm -rf {} \;
 
 ### tar all files
-mv $WORKROOT/_output $WORKROOT/output
-# tar zcf data.tar.gz ./
+mkdir -p $WORKROOT/output
+# mv $WORKROOT/_output/bin/*  $WORKROOT/output/
+cd $WORKROOT/_output/bin/  
+tar zcf data.tar.gz ./
 # mkdir -p $GOPATH/output/
-# mv data.tar.gz $GOPATH/output/
+mv data.tar.gz $WORKROOT/output
