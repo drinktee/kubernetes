@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	"github.com/drinktee/bce-sdk-go/blb"
+	"github.com/drinktee/bce-sdk-go/eip"
 	"github.com/golang/glog"
 	"k8s.io/kubernetes/pkg/api/v1"
 	"k8s.io/kubernetes/pkg/cloudprovider"
@@ -115,6 +116,13 @@ func (bc *BCECloud) EnsureLoadBalancer(clusterName string, service *v1.Service, 
 	if err != nil {
 		return nil, err
 	}
+
+	glog.V(2).Infoln("EnsureLoadBalancer: createEIP!")
+	// TODO
+	err = bc.createEIP(&lb)
+	if err != nil {
+		return nil, err
+	}
 	return &v1.LoadBalancerStatus{
 		Ingress: []v1.LoadBalancerIngress{{IP: lb.Address}},
 	}, nil
@@ -146,6 +154,12 @@ func (bc *BCECloud) EnsureLoadBalancerDeleted(clusterName string, service *v1.Se
 	}
 	if !existsLb {
 		return nil
+	}
+	// delete EIP
+	glog.V(4).Infof("Start delete EIP: %s", lb.PublicIp)
+	err = bc.deleteEIP(&lb)
+	if err != nil {
+		return err
 	}
 	args := blb.DeleteLoadBalancerArgs{
 		LoadBalancerId: lb.BlbId,
@@ -389,6 +403,49 @@ func (bc *BCECloud) reconcileBackendServers(nodes []*v1.Node, lb *blb.LoadBalanc
 		if err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+func (bc *BCECloud) createEIP(lb *blb.LoadBalancer) error {
+	bill := &eip.Billing{
+		PaymentTiming: "Postpaid",
+		BillingMethod: "ByTraffic",
+	}
+	args := &eip.CreateEipArgs{
+		BandwidthInMbps: 1000,
+		Billing:         bill,
+		Name:            lb.Name,
+	}
+	ip, err := bc.clientSet.Eip().CreateEip(args)
+	if err != nil {
+		return err
+	}
+	argsBind := &eip.BindEipArgs{
+		Ip:           ip,
+		InstanceId:   lb.BlbId,
+		InstanceType: eip.BLB,
+	}
+	err = bc.clientSet.Eip().BindEip(argsBind)
+	if err != nil {
+		return err
+	}
+	lb.PublicIp = ip
+	return nil
+}
+
+func (bc *BCECloud) deleteEIP(lb *blb.LoadBalancer) error {
+	args := eip.EipArgs{
+		Ip: lb.PublicIp,
+	}
+	err := bc.clientSet.Eip().UnbindEip(&args)
+	if err != nil {
+		return err
+	}
+
+	err = bc.clientSet.Eip().DeleteEip(&args)
+	if err != nil {
+		return err
 	}
 	return nil
 }
