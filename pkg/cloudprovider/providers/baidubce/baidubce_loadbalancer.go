@@ -273,8 +273,8 @@ func (bc *BCECloud) getAllListeners(lb *blb.LoadBalancer) ([]PortListener, error
 
 func (bc *BCECloud) createListener(lb *blb.LoadBalancer, pl PortListener) error {
 	switch pl.Protocol {
-	case "http":
-	case "tcp":
+	case "HTTP":
+	case "TCP":
 		args := blb.CreateTCPListenerArgs{
 			LoadBalancerId: lb.BlbId,
 			ListenerPort:   pl.Port,
@@ -286,10 +286,10 @@ func (bc *BCECloud) createListener(lb *blb.LoadBalancer, pl PortListener) error 
 			return err
 		}
 		return nil
-	case "https":
-	case "udp":
+	case "HTTPS":
+	case "UDP":
 	}
-	return fmt.Errorf("createListener protocol not match: %s", pl.Protocol)
+	return fmt.Errorf("CreateListener protocol not match: %s", pl.Protocol)
 }
 
 func (bc *BCECloud) updateListener(lb *blb.LoadBalancer, pl PortListener) error {
