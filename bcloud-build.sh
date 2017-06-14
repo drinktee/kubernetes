@@ -12,7 +12,7 @@ WORKROOT=$(pwd)
 
 export GOROOT=/home/scmtools/buildkit/go/go_1.7.3/
 export GO=$GOROOT/bin/go
-export PATH=$PATH:$GOPATH/bin
+# export PATH=$PATH:$GOPATH/bin
 
 
 function log() {
