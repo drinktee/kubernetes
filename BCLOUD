@@ -1,0 +1,1 @@
+BUILD_SUBMITTER -e CENTOS6U3 -x -m baidu/jpaas-caas/kubernetes-bce -c "cd baidu/jpaas-caas/kubernetes-bce && sh bcloud-build.sh" -u ./
