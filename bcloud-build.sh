@@ -39,7 +39,7 @@ build $*
 ### tar all files
 mkdir -p $WORKROOT/output
 # mv $WORKROOT/_output/bin/*  $WORKROOT/output/
-cd $WORKROOT/_output/bin/  
-tar zcf data.tar.gz ./
+cd $WORKROOT/_output/local/bin/linux/
+tar zcf data.tar.gz ./amd64
 # mkdir -p $GOPATH/output/
 mv data.tar.gz $WORKROOT/output
