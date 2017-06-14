@@ -205,10 +205,13 @@ func (bc *BCECloud) reconcileListeners(service *v1.Service, lb *blb.LoadBalancer
 		}
 	}
 	// delete listener
-	err = bc.deleteListener(lb, deleteList)
-	if err != nil {
-		return err
+	if len(deleteList) > 0 {
+		err = bc.deleteListener(lb, deleteList)
+		if err != nil {
+			return err
+		}
 	}
+
 	// create expected listener
 	for _, pl := range expected {
 		err := bc.createListener(lb, pl)
