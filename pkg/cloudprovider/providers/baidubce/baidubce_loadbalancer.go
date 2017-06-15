@@ -417,6 +417,7 @@ func (bc *BCECloud) createEIP(lb *blb.LoadBalancer) error {
 		Billing:         bill,
 		Name:            lb.Name,
 	}
+	glog.V(4).Infof("CreateEip:  %v", args)
 	ip, err := bc.clientSet.Eip().CreateEip(args)
 	if err != nil {
 		return err
@@ -426,6 +427,7 @@ func (bc *BCECloud) createEIP(lb *blb.LoadBalancer) error {
 		InstanceId:   lb.BlbId,
 		InstanceType: eip.BLB,
 	}
+	glog.V(4).Infof("BindEip:  %v", args)
 	err = bc.clientSet.Eip().BindEip(argsBind)
 	if err != nil {
 		return err
