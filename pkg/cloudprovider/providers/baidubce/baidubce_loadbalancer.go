@@ -19,6 +19,8 @@ package baidubce
 import (
 	"fmt"
 
+	"time"
+
 	"github.com/drinktee/bce-sdk-go/blb"
 	"github.com/drinktee/bce-sdk-go/eip"
 	"github.com/golang/glog"
@@ -422,12 +424,31 @@ func (bc *BCECloud) createEIP(lb *blb.LoadBalancer) error {
 	if err != nil {
 		return err
 	}
+	argsGet := eip.GetEipsArgs{
+		Ip: ip,
+	}
+	eips, err := bc.clientSet.Eip().GetEips(&argsGet)
+	if err != nil {
+		return err
+	}
+	if len(eips) > 0 {
+		eipStatus := eips[0].Status
+		for index := 0; (index < 10) && (eipStatus != "available"); index++ {
+			glog.V(4).Infof("Eip: %s is not available, retry:  %d", ip, index)
+			time.Sleep(5 * time.Second)
+			eips, err := bc.clientSet.Eip().GetEips(&argsGet)
+			if err != nil {
+				return err
+			}
+			eipStatus = eips[0].Status
+		}
+	}
 	argsBind := &eip.BindEipArgs{
 		Ip:           ip,
 		InstanceId:   lb.BlbId,
 		InstanceType: eip.BLB,
 	}
-	glog.V(4).Infof("BindEip:  %v", args)
+	glog.V(4).Infof("BindEip:  %v", argsBind)
 	err = bc.clientSet.Eip().BindEip(argsBind)
 	if err != nil {
 		return err
