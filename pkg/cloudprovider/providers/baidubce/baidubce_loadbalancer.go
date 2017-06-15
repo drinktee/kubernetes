@@ -110,7 +110,7 @@ func (bc *BCECloud) EnsureLoadBalancer(clusterName string, service *v1.Service, 
 		glog.V(2).Infoln("EnsureLoadBalancer: blb already exists!")
 	}
 	// TODO wait until
-	time.Sleep(40 * time.Second)
+	time.Sleep(60 * time.Second)
 	glog.V(2).Infoln("EnsureLoadBalancer: reconcileListeners!")
 	err = bc.reconcileListeners(service, &lb)
 	if err != nil {
@@ -118,7 +118,7 @@ func (bc *BCECloud) EnsureLoadBalancer(clusterName string, service *v1.Service, 
 	}
 	glog.V(2).Infoln("EnsureLoadBalancer: reconcileBackendServers!")
 	// TODO wait until
-	time.Sleep(40 * time.Second)
+	time.Sleep(60 * time.Second)
 	err = bc.reconcileBackendServers(nodes, &lb)
 	if err != nil {
 		return nil, err
@@ -453,7 +453,7 @@ func (bc *BCECloud) createEIP(lb *blb.LoadBalancer) error {
 
 	for index := 0; (index < 10) && (lb.Status != "available"); index++ {
 		glog.V(4).Infof("BLB: %s is not available, retry:  %d", lb.Name, index)
-		time.Sleep(10 * time.Second)
+		time.Sleep(30 * time.Second)
 		lb, exist, err := bc.getBCELoadBalancer(lb.Name)
 		if err != nil {
 			glog.V(4).Infof("getBCELoadBalancer error: %s", lb.Name)
@@ -473,6 +473,7 @@ func (bc *BCECloud) createEIP(lb *blb.LoadBalancer) error {
 	glog.V(4).Infof("Bind BLB: %v", lb)
 	err = bc.clientSet.Eip().BindEip(argsBind)
 	if err != nil {
+		glog.V(4).Infof("BindEip error: %v", err)
 		return err
 	}
 	lb.PublicIp = ip
