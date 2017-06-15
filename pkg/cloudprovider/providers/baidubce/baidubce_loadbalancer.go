@@ -53,10 +53,12 @@ func (bc *BCECloud) getBCELoadBalancer(name string) (lb blb.LoadBalancer, exists
 	}
 	lbs, err := bc.clientSet.Blb().DescribeLoadBalancers(&args)
 	if err != nil {
+		glog.V(2).Infof("getBCELoadBalancer  not exists blb! %v", args)
 		return blb.LoadBalancer{}, false, err
 	}
 
 	if len(lbs) < 1 {
+		glog.V(2).Infof("getBCELoadBalancer  not exists blb! len(lbs) < 1  %v", args)
 		return blb.LoadBalancer{}, false, nil
 	}
 
@@ -158,6 +160,7 @@ func (bc *BCECloud) EnsureLoadBalancerDeleted(clusterName string, service *v1.Se
 		return err
 	}
 	if !existsLb {
+		glog.V(4).Infof("BCELoadBalancer not exists: %s", lbName)
 		return nil
 	}
 	// delete EIP
@@ -445,6 +448,7 @@ func (bc *BCECloud) createEIP(lb *blb.LoadBalancer) error {
 			}
 			eipStatus = eips[0].Status
 		}
+		glog.V(4).Infof("Eip status is: %s", eipStatus)
 	}
 	argsBind := &eip.BindEipArgs{
 		Ip:           ip,

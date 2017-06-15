@@ -42,6 +42,7 @@ type CloudConfig struct {
 	AccessKeyID     string `json:"AccessKeyID"`
 	SecretAccessKey string `json:"SecretAccessKey"`
 	Region          string `json:"region"`
+	VpcID           string `json:"vpcId"`
 }
 
 func init() {
