@@ -63,12 +63,13 @@ func NewBCECloud(configReader io.Reader) (cloudprovider.Interface, error) {
 	bceConfig := baidubce.NewConfig(cred)
 	bceConfig.Region = bce.Region
 	// bceConfig.Timeout = 5 * time.Second
-	bce.clientSet.Blb().SetDebug(true)
-	bce.clientSet.Eip().SetDebug(true)
+
 	bce.clientSet, err = clientset.NewFromConfig(bceConfig)
 	if err != nil {
 		return nil, err
 	}
+	bce.clientSet.Blb().SetDebug(true)
+	bce.clientSet.Eip().SetDebug(true)
 	return &bce, nil
 }
 
