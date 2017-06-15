@@ -21,8 +21,6 @@ import (
 	"io"
 	"io/ioutil"
 
-	"time"
-
 	baidubce "github.com/drinktee/bce-sdk-go/bce"
 	"github.com/drinktee/bce-sdk-go/clientset"
 	"k8s.io/kubernetes/pkg/cloudprovider"
@@ -64,7 +62,9 @@ func NewBCECloud(configReader io.Reader) (cloudprovider.Interface, error) {
 	cred := baidubce.NewCredentials(bce.AccessKeyID, bce.SecretAccessKey)
 	bceConfig := baidubce.NewConfig(cred)
 	bceConfig.Region = bce.Region
-	bceConfig.Timeout = 5 * time.Second
+	// bceConfig.Timeout = 5 * time.Second
+	bce.clientSet.Blb().SetDebug(true)
+	bce.clientSet.Eip().SetDebug(true)
 	bce.clientSet, err = clientset.NewFromConfig(bceConfig)
 	if err != nil {
 		return nil, err

@@ -107,13 +107,16 @@ func (bc *BCECloud) EnsureLoadBalancer(clusterName string, service *v1.Service, 
 		// TODO:need to diff lb
 		glog.V(2).Infoln("EnsureLoadBalancer: blb already exists!")
 	}
-
+	// TODO wait until
+	time.Sleep(60 * time.Second)
 	glog.V(2).Infoln("EnsureLoadBalancer: reconcileListeners!")
 	err = bc.reconcileListeners(service, &lb)
 	if err != nil {
 		return nil, err
 	}
 	glog.V(2).Infoln("EnsureLoadBalancer: reconcileBackendServers!")
+	// TODO wait until
+	time.Sleep(60 * time.Second)
 	err = bc.reconcileBackendServers(nodes, &lb)
 	if err != nil {
 		return nil, err
@@ -465,7 +468,25 @@ func (bc *BCECloud) deleteEIP(lb *blb.LoadBalancer) error {
 	if err != nil {
 		return err
 	}
-
+	argsGet := eip.GetEipsArgs{
+		Ip: lb.PublicIp,
+	}
+	eips, err := bc.clientSet.Eip().GetEips(&argsGet)
+	if err != nil {
+		return err
+	}
+	if len(eips) > 0 {
+		eipStatus := eips[0].Status
+		for index := 0; (index < 10) && (eipStatus != "available"); index++ {
+			glog.V(4).Infof("Eip: %s is not available, retry:  %d", lb.PublicIp, index)
+			time.Sleep(10 * time.Second)
+			eips, err := bc.clientSet.Eip().GetEips(&argsGet)
+			if err != nil {
+				return err
+			}
+			eipStatus = eips[0].Status
+		}
+	}
 	err = bc.clientSet.Eip().DeleteEip(&args)
 	if err != nil {
 		return err
