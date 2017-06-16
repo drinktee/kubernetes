@@ -156,7 +156,9 @@ func (bc *BCECloud) EnsureLoadBalancerDeleted(clusterName string, service *v1.Se
 	service.Spec.Ports = []v1.ServicePort{}
 
 	lb, existsLb, err := bc.getBCELoadBalancer(lbName)
+	glog.V(4).Infof("EnsureLoadBalancerDeleted getBCELoadBalancer : %s", lb.Name)
 	if err != nil {
+		glog.V(4).Infof("EnsureLoadBalancerDeleted get error: %s", err.Error())
 		return err
 	}
 	if !existsLb {
