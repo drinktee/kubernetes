@@ -454,7 +454,7 @@ func (bc *BCECloud) createEIP(lb *blb.LoadBalancer) error {
 	for index := 0; (index < 10) && (lb.Status != "available"); index++ {
 		glog.V(4).Infof("BLB: %s is not available, retry:  %d", lb.Name, index)
 		time.Sleep(30 * time.Second)
-		lb, exist, err := bc.getBCELoadBalancer(lb.Name)
+		newlb, exist, err := bc.getBCELoadBalancer(lb.Name)
 		if err != nil {
 			glog.V(4).Infof("getBCELoadBalancer error: %s", lb.Name)
 			return err
@@ -463,6 +463,8 @@ func (bc *BCECloud) createEIP(lb *blb.LoadBalancer) error {
 			glog.V(4).Infof("getBCELoadBalancer not exist: %s", lb.Name)
 			return fmt.Errorf("BLB not exists:%s", lb.Name)
 		}
+		lb = &newlb
+		glog.V(4).Infof("BLB status is : %s", lb.Status)
 	}
 	argsBind := &eip.BindEipArgs{
 		Ip:           ip,
