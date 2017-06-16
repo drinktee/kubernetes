@@ -20,6 +20,7 @@ import (
 	"encoding/json"
 	"io"
 	"io/ioutil"
+	"time"
 
 	baidubce "github.com/drinktee/bce-sdk-go/bce"
 	"github.com/drinktee/bce-sdk-go/clientset"
@@ -63,7 +64,8 @@ func NewBCECloud(configReader io.Reader) (cloudprovider.Interface, error) {
 	cred := baidubce.NewCredentials(bce.AccessKeyID, bce.SecretAccessKey)
 	bceConfig := baidubce.NewConfig(cred)
 	bceConfig.Region = bce.Region
-	// bceConfig.Timeout = 5 * time.Second
+	// timeout need to set
+	bceConfig.Timeout = 10 * time.Second
 
 	bce.clientSet, err = clientset.NewFromConfig(bceConfig)
 	if err != nil {
