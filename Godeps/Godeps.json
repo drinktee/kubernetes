@@ -936,27 +936,27 @@
 		},
 		{
 			"ImportPath": "github.com/drinktee/bce-sdk-go/bcc",
-			"Rev": "90655c52809bb75ee6453cd2bd3e158d33cfb856"
+			"Rev": "074c119d5dda85dda4bb72ae77084fb3783c4510"
 		},
 		{
 			"ImportPath": "github.com/drinktee/bce-sdk-go/bce",
-			"Rev": "90655c52809bb75ee6453cd2bd3e158d33cfb856"
+			"Rev": "074c119d5dda85dda4bb72ae77084fb3783c4510"
 		},
 		{
 			"ImportPath": "github.com/drinktee/bce-sdk-go/blb",
-			"Rev": "90655c52809bb75ee6453cd2bd3e158d33cfb856"
+			"Rev": "074c119d5dda85dda4bb72ae77084fb3783c4510"
 		},
 		{
 			"ImportPath": "github.com/drinktee/bce-sdk-go/clientset",
-			"Rev": "90655c52809bb75ee6453cd2bd3e158d33cfb856"
+			"Rev": "074c119d5dda85dda4bb72ae77084fb3783c4510"
 		},
 		{
 			"ImportPath": "github.com/drinktee/bce-sdk-go/eip",
-			"Rev": "90655c52809bb75ee6453cd2bd3e158d33cfb856"
+			"Rev": "074c119d5dda85dda4bb72ae77084fb3783c4510"
 		},
 		{
 			"ImportPath": "github.com/drinktee/bce-sdk-go/util",
-			"Rev": "90655c52809bb75ee6453cd2bd3e158d33cfb856"
+			"Rev": "074c119d5dda85dda4bb72ae77084fb3783c4510"
 		},
 		{
 			"ImportPath": "github.com/elazarl/go-bindata-assetfs",

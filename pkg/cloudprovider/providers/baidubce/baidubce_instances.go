@@ -40,7 +40,7 @@ func (bc *BCECloud) NodeAddresses(name types.NodeName) ([]v1.NodeAddress, error)
 func (bc *BCECloud) getIPForMachine(name types.NodeName) (string, error) {
 	ins, err := bc.clientSet.Bcc().ListInstances(nil)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	insName := string(name)
 	for _, i := range ins {
