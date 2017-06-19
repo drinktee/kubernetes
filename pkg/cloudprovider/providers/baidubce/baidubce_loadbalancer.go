@@ -131,7 +131,7 @@ func (bc *BCECloud) EnsureLoadBalancer(clusterName string, service *v1.Service, 
 		return nil, err
 	}
 	return &v1.LoadBalancerStatus{
-		Ingress: []v1.LoadBalancerIngress{{IP: lb.Address}},
+		Ingress: []v1.LoadBalancerIngress{{IP: lb.PublicIp}},
 	}, nil
 }
 
@@ -455,7 +455,7 @@ func (bc *BCECloud) createEIP(lb *blb.LoadBalancer) error {
 
 	for index := 0; (index < 10) && (lb.Status != "available"); index++ {
 		glog.V(4).Infof("BLB: %s is not available, retry:  %d", lb.Name, index)
-		time.Sleep(30 * time.Second)
+		time.Sleep(10 * time.Second)
 		newlb, exist, err := bc.getBCELoadBalancer(lb.Name)
 		if err != nil {
 			glog.V(4).Infof("getBCELoadBalancer error: %s", lb.Name)

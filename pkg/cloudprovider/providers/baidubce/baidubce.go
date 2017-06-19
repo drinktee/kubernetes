@@ -99,7 +99,7 @@ func (bc *BCECloud) Clusters() (cloudprovider.Clusters, bool) {
 
 // Routes returns a routes interface along with whether the interface is supported.
 func (bc *BCECloud) Routes() (cloudprovider.Routes, bool) {
-	return nil, false
+	return bc, true
 }
 
 // ScrubDNS provides an opportunity for cloud-provider-specific code to process DNS settings for pods.
