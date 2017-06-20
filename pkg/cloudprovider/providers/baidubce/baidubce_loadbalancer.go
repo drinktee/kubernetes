@@ -42,6 +42,7 @@ func (bc *BCECloud) GetLoadBalancer(clusterName string, service *v1.Service) (st
 	if lb.PublicIp != "" {
 		ip = lb.PublicIp
 	}
+	glog.V(4).Infof("GetLoadBalancer ip: %s", ip)
 	return &v1.LoadBalancerStatus{
 		Ingress: []v1.LoadBalancerIngress{{IP: ip}},
 	}, true, nil
@@ -130,6 +131,7 @@ func (bc *BCECloud) EnsureLoadBalancer(clusterName string, service *v1.Service, 
 	if err != nil {
 		return nil, err
 	}
+	glog.V(4).Infof("EnsureLoadBalancer: LoadBalancerIngress= %v", lb.PublicIp)
 	return &v1.LoadBalancerStatus{
 		Ingress: []v1.LoadBalancerIngress{{IP: lb.PublicIp}},
 	}, nil
