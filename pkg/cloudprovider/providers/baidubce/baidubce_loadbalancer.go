@@ -127,13 +127,13 @@ func (bc *BCECloud) EnsureLoadBalancer(clusterName string, service *v1.Service, 
 
 	glog.V(2).Infoln("EnsureLoadBalancer: createEIP!")
 	// TODO
-	err = bc.createEIP(&lb)
+	pubIP, err := bc.createEIP(&lb)
 	if err != nil {
 		return nil, err
 	}
-	glog.V(4).Infof("EnsureLoadBalancer: LoadBalancerIngress= %v", lb.PublicIp)
+	glog.V(4).Infof("EnsureLoadBalancer: LoadBalancerIngress= %v  pubIP is %s", lb.PublicIp, pubIP)
 	return &v1.LoadBalancerStatus{
-		Ingress: []v1.LoadBalancerIngress{{IP: lb.PublicIp}},
+		Ingress: []v1.LoadBalancerIngress{{IP: pubIP}},
 	}, nil
 }
 
@@ -419,7 +419,7 @@ func (bc *BCECloud) reconcileBackendServers(nodes []*v1.Node, lb *blb.LoadBalanc
 	return nil
 }
 
-func (bc *BCECloud) createEIP(lb *blb.LoadBalancer) error {
+func (bc *BCECloud) createEIP(lb *blb.LoadBalancer) (string, error) {
 	bill := &eip.Billing{
 		PaymentTiming: "Postpaid",
 		BillingMethod: "ByTraffic",
@@ -432,14 +432,14 @@ func (bc *BCECloud) createEIP(lb *blb.LoadBalancer) error {
 	glog.V(4).Infof("CreateEip:  %v", args)
 	ip, err := bc.clientSet.Eip().CreateEip(args)
 	if err != nil {
-		return err
+		return "", err
 	}
 	argsGet := eip.GetEipsArgs{
 		Ip: ip,
 	}
 	eips, err := bc.clientSet.Eip().GetEips(&argsGet)
 	if err != nil {
-		return err
+		return "", err
 	}
 	if len(eips) > 0 {
 		eipStatus := eips[0].Status
@@ -448,7 +448,7 @@ func (bc *BCECloud) createEIP(lb *blb.LoadBalancer) error {
 			time.Sleep(10 * time.Second)
 			eips, err := bc.clientSet.Eip().GetEips(&argsGet)
 			if err != nil {
-				return err
+				return "", err
 			}
 			eipStatus = eips[0].Status
 		}
@@ -461,11 +461,11 @@ func (bc *BCECloud) createEIP(lb *blb.LoadBalancer) error {
 		newlb, exist, err := bc.getBCELoadBalancer(lb.Name)
 		if err != nil {
 			glog.V(4).Infof("getBCELoadBalancer error: %s", lb.Name)
-			return err
+			return "", err
 		}
 		if !exist {
 			glog.V(4).Infof("getBCELoadBalancer not exist: %s", lb.Name)
-			return fmt.Errorf("BLB not exists:%s", lb.Name)
+			return "", fmt.Errorf("BLB not exists:%s", lb.Name)
 		}
 		lb = &newlb
 		glog.V(4).Infof("BLB status is : %s", lb.Status)
@@ -480,10 +480,11 @@ func (bc *BCECloud) createEIP(lb *blb.LoadBalancer) error {
 	err = bc.clientSet.Eip().BindEip(argsBind)
 	if err != nil {
 		glog.V(4).Infof("BindEip error: %v", err)
-		return err
+		return "", err
 	}
 	lb.PublicIp = ip
-	return nil
+	glog.V(4).Infof("createEIP: lb.PublicIp is %s", lb.PublicIp)
+	return ip, nil
 }
 
 func (bc *BCECloud) deleteEIP(lb *blb.LoadBalancer) error {
