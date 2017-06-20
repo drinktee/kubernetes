@@ -89,8 +89,7 @@ func (bc *BCECloud) EnsureLoadBalancer(clusterName string, service *v1.Service, 
 	}
 	lbName := cloudprovider.GetLoadBalancerName(service)
 	if !exists {
-		// TODO:need to create blb
-		glog.V(2).Infoln("EnsureLoadBalancer create not exists blb!")
+		glog.V(4).Infoln("EnsureLoadBalancer create not exists blb!")
 		args := blb.CreateLoadBalancerArgs{
 			Name: lbName,
 		}
@@ -107,19 +106,24 @@ func (bc *BCECloud) EnsureLoadBalancer(clusterName string, service *v1.Service, 
 		}
 		lb = lbs[0]
 	} else {
-		// TODO:need to diff lb
-		glog.V(2).Infoln("EnsureLoadBalancer: blb already exists!")
+		glog.V(4).Infoln("EnsureLoadBalancer: blb already exists!")
 	}
-	// TODO wait until
-	time.Sleep(60 * time.Second)
+	lb, err = bc.waitForLoadBalancer(&lb)
+	if err != nil {
+		return nil, err
+	}
+	// time.Sleep(60 * time.Second)
 	glog.V(2).Infoln("EnsureLoadBalancer: reconcileListeners!")
 	err = bc.reconcileListeners(service, &lb)
 	if err != nil {
 		return nil, err
 	}
 	glog.V(2).Infoln("EnsureLoadBalancer: reconcileBackendServers!")
-	// TODO wait until
-	time.Sleep(60 * time.Second)
+	// time.Sleep(60 * time.Second)
+	lb, err = bc.waitForLoadBalancer(&lb)
+	if err != nil {
+		return nil, err
+	}
 	err = bc.reconcileBackendServers(nodes, &lb)
 	if err != nil {
 		return nil, err
@@ -519,4 +523,25 @@ func (bc *BCECloud) deleteEIP(lb *blb.LoadBalancer) error {
 		return err
 	}
 	return nil
+}
+
+func (bc *BCECloud) waitForLoadBalancer(lb *blb.LoadBalancer) (blb.LoadBalancer, error) {
+	// var newlb blb.LoadBalancer
+	for index := 0; (index < 10) && (lb.Status != "available"); index++ {
+		glog.V(4).Infof("BLB: %s is not available, retry:  %d", lb.Name, index)
+		time.Sleep(10 * time.Second)
+		newlb, exist, err := bc.getBCELoadBalancer(lb.Name)
+		if err != nil {
+			glog.V(4).Infof("getBCELoadBalancer error: %s", lb.Name)
+			return newlb, err
+		}
+		if !exist {
+			glog.V(4).Infof("getBCELoadBalancer not exist: %s", lb.Name)
+			return newlb, fmt.Errorf("BLB not exists:%s", lb.Name)
+		}
+		lb = &newlb
+		glog.V(4).Infof("BLB status is : %s", lb.Status)
+	}
+
+	return *lb, nil
 }
