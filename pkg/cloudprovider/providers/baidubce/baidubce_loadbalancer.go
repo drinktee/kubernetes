@@ -81,7 +81,7 @@ func (bc *BCECloud) EnsureLoadBalancer(clusterName string, service *v1.Service, 
 		return nil, fmt.Errorf("requested load balancer with no ports")
 	}
 	if service.Spec.LoadBalancerIP != "" {
-		return nil, fmt.Errorf("LoadBalancerIP cannot be specified for AWS ELB")
+		return nil, fmt.Errorf("LoadBalancerIP cannot be specified for BLB")
 	}
 	lb, exists, err := bc.getBCELoadBalancer(cloudprovider.GetLoadBalancerName(service))
 	if err != nil {
@@ -181,12 +181,13 @@ func (bc *BCECloud) EnsureLoadBalancerDeleted(clusterName string, service *v1.Se
 		return err
 	}
 	// delete EIP
-	glog.V(4).Infof("Start delete EIP: %s", lb.PublicIp)
-	err = bc.deleteEIP(&lb)
-	if err != nil {
-		return err
+	if lb.PublicIp != "" {
+		glog.V(4).Infof("Start delete EIP: %s", lb.PublicIp)
+		err = bc.deleteEIP(&lb)
+		if err != nil {
+			return err
+		}
 	}
-
 	glog.V(2).Infof("delete(%s): FINISH", serviceName)
 	return nil
 }
