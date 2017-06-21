@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"fmt"
+
 	baidubce "github.com/drinktee/bce-sdk-go/bce"
 	"github.com/drinktee/bce-sdk-go/clientset"
 )
@@ -14,7 +16,8 @@ var cloudconfig = `{
     "AccessKeyID": "8e2fdc833cf44b4895afd0bce14f43cf",
     "SecretAccessKey": "7ae4ae1828694bbc814bb06fa87a43fa",
     "region": "bj",
-    "masterId": "i-advasdv"
+    "masterId": "i-advasdv",
+	"endpoint":"www.baidu.com"
 }`
 
 func TestNewBCECloud(t *testing.T) {
@@ -34,6 +37,9 @@ func TestNewCloud(t *testing.T) {
 	if bc.AccessKeyID != "8e2fdc833cf44b4895afd0bce14f43cf" {
 		t.Error("accesskey error")
 	}
+	if bc.Endpoint != "" {
+		fmt.Println(bc.Endpoint)
+	}
 }
 func newBceCloud() (*BCECloud, error) {
 	var bc BCECloud
@@ -50,6 +56,9 @@ func newBceCloud() (*BCECloud, error) {
 	bceConfig.Region = bc.Region
 	// timeout need to set
 	bceConfig.Timeout = 10 * time.Second
+	if bc.Endpoint != "" {
+		bceConfig.Endpoint = bc.Endpoint
+	}
 	bc.clientSet, err = clientset.NewFromConfig(bceConfig)
 	if err != nil {
 		return nil, err

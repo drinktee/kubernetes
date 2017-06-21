@@ -45,6 +45,7 @@ type CloudConfig struct {
 	Region          string `json:"region"`
 	VpcID           string `json:"vpcId"`
 	MasterID        string `json:"masterId"`
+	Endpoint        string `json:"endpoint"`
 }
 
 func init() {
@@ -67,7 +68,9 @@ func NewBCECloud(configReader io.Reader) (cloudprovider.Interface, error) {
 	bceConfig.Region = bce.Region
 	// timeout need to set
 	bceConfig.Timeout = 10 * time.Second
-
+	if bce.Endpoint != "" {
+		bceConfig.Endpoint = bce.Endpoint
+	}
 	bce.clientSet, err = clientset.NewFromConfig(bceConfig)
 	if err != nil {
 		return nil, err
