@@ -29,7 +29,7 @@ func (bc *BCECloud) ListRoutes(clusterName string) (routes []*cloudprovider.Rout
 	var kubeRoutes []*cloudprovider.Route
 	nodename := make(map[string]string)
 	for _, ins := range inss {
-		nodename[ins.InstanceId] = ins.InstanceName
+		nodename[ins.InstanceId] = ins.InternalIP
 	}
 	for _, r := range rs {
 		// filter instance route
@@ -99,9 +99,19 @@ func (bc *BCECloud) CreateRoute(clusterName string, nameHint string, kubeRoute *
 	if err != nil {
 		return err
 	}
+	vpcid, err := bc.getVpcID()
+	if err != nil {
+		return err
+	}
 	for _, ins := range inss {
-		if ins.InstanceName == string(kubeRoute.TargetNode) {
-			insID = ins.InstanceId
+		if ins.InternalIP == string(kubeRoute.TargetNode) {
+			vm, err := bc.clientSet.Bcc().DescribeInstance(ins.InstanceId, nil)
+			if err != nil {
+				return err
+			}
+			if vm.VpcId == vpcid {
+				insID = ins.InstanceId
+			}
 		}
 	}
 	args := bcc.CreateRouteRuleArgs{
