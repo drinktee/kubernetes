@@ -83,6 +83,11 @@ func (bc *BCECloud) EnsureLoadBalancer(clusterName string, service *v1.Service, 
 	if service.Spec.LoadBalancerIP != "" {
 		return nil, fmt.Errorf("LoadBalancerIP cannot be specified for BLB")
 	}
+	for _, port := range service.Spec.Ports {
+		if port.Protocol != v1.ProtocolTCP {
+			return nil, fmt.Errorf("Only TCP LoadBalancer is supported for Baidu K8S")
+		}
+	}
 	lb, exists, err := bc.getBCELoadBalancer(cloudprovider.GetLoadBalancerName(service))
 	if err != nil {
 		return nil, err
