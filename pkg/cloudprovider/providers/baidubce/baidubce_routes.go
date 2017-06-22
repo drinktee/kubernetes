@@ -27,7 +27,7 @@ func (bc *BCECloud) ListRoutes(clusterName string) (routes []*cloudprovider.Rout
 		return nil, err
 	}
 	var kubeRoutes []*cloudprovider.Route
-	var nodename map[string]string
+	nodename := make(map[string]string)
 	for _, ins := range inss {
 		nodename[ins.InstanceId] = ins.InstanceName
 	}
@@ -55,7 +55,7 @@ func (bc *BCECloud) ListRoutes(clusterName string) (routes []*cloudprovider.Rout
 func (bc *BCECloud) getVpcID() (string, error) {
 	var vpcid string
 	if bc.MasterID == "" {
-		return "", fmt.Errorf("Config must have an instanceID")
+		return "", fmt.Errorf("BCE Config must have an instanceID")
 	}
 	inss, err := bc.clientSet.Bcc().ListInstances(nil)
 	if err != nil {
@@ -143,6 +143,7 @@ func (bc *BCECloud) CreateRoute(clusterName string, nameHint string, kubeRoute *
 		SourceAddress:      "0.0.0.0/0",
 		NexthopID:          insID,
 	}
+	glog.V(4).Infof("CreateRoute: DestinationAddress is %s . NexthopID is : %s .", args.DestinationAddress, args.NexthopID)
 	_, err = bc.clientSet.Bcc().CreateRouteRule(&args)
 	return err
 }
@@ -158,6 +159,7 @@ func (bc *BCECloud) DeleteRoute(clusterName string, kubeRoute *cloudprovider.Rou
 	}
 	for _, vr := range vpcTable {
 		if vr.DestinationAddress == kubeRoute.DestinationCIDR && vr.SourceAddress == "0.0.0.0/0" {
+			glog.V(4).Infof("DeleteRoute: DestinationAddress is %s .", vr.DestinationAddress)
 			err := bc.clientSet.Bcc().DeleteRoute(vr.RouteRuleID)
 			if err != nil {
 				glog.V(4).Infof("Delete VPC route error %s", err.Error())
