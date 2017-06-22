@@ -80,8 +80,14 @@ func (bc *BCECloud) getVirtualMachine(name types.NodeName) (vm bcc.Instance, err
 		return vm, err
 	}
 	for _, i := range ins {
-		if i.InternalIP == nameStr && i.VpcId == vpcid {
-			return i, nil
+		if i.InternalIP == nameStr {
+			v, err := bc.clientSet.Bcc().DescribeInstance(i.InstanceId, nil)
+			if err != nil {
+				return vm, err
+			}
+			if v.VpcId == vpcid {
+				return *v, nil
+			}
 		}
 	}
 	return vm, cloudprovider.InstanceNotFound
