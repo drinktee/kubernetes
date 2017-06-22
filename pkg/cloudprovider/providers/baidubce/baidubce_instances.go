@@ -129,5 +129,9 @@ func (bc *BCECloud) AddSSHKeyToAllInstances(user string, keyData []byte) error {
 // CurrentNodeName returns the name of the node we are currently running on
 // On most clouds (e.g. GCE) this is the hostname, so we provide the hostname
 func (bc *BCECloud) CurrentNodeName(hostname string) (types.NodeName, error) {
+	nodeIP := net.ParseIP(hostname)
+	if nodeIP != nil {
+		bc.NodeIP = hostname
+	}
 	return types.NodeName(hostname), nil
 }

@@ -48,6 +48,7 @@ type CloudConfig struct {
 	VpcID           string `json:"VpcId"`
 	MasterID        string `json:"MasterId"`
 	Endpoint        string `json:"Endpoint"`
+	NodeIP          string `json:"NodeIP"`
 }
 
 func init() {

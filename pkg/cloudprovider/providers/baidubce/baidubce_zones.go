@@ -17,24 +17,22 @@ limitations under the License.
 package baidubce
 
 import (
-	"os"
-
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/kubernetes/pkg/cloudprovider"
 )
 
 // GetZone returns the Zone containing the current failure zone and locality region that the program is running in
 func (bc *BCECloud) GetZone() (cloudprovider.Zone, error) {
-	host, err := os.Hostname()
-	zone := cloudprovider.Zone{}
-	if err != nil {
-		return zone, err
+	zone := cloudprovider.Zone{
+		FailureDomain: "unknow",
+		Region:        bc.Region,
 	}
-	ins, err := bc.getVirtualMachine(types.NodeName(host))
-	if err != nil {
-		return zone, err
+	if bc.NodeIP != "" {
+		ins, err := bc.getVirtualMachine(types.NodeName(bc.NodeIP))
+		if err != nil {
+			return zone, err
+		}
+		zone.FailureDomain = ins.ZoneName
 	}
-	zone.FailureDomain = ins.ZoneName
-	zone.Region = bc.Region
 	return zone, nil
 }
