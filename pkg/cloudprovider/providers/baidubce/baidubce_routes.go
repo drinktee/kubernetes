@@ -52,37 +52,6 @@ func (bc *BCECloud) ListRoutes(clusterName string) (routes []*cloudprovider.Rout
 	return kubeRoutes, nil
 }
 
-func (bc *BCECloud) getVpcID() (string, error) {
-	var vpcid string
-	if bc.MasterID == "" {
-		return "", fmt.Errorf("BCE Config must have an instanceID")
-	}
-	inss, err := bc.clientSet.Bcc().ListInstances(nil)
-	if err != nil {
-		return "", err
-	}
-	for _, ins := range inss {
-		if ins.InstanceId == bc.MasterID {
-			vpcid = ins.VpcId
-			bc.VpcID = ins.VpcId
-		}
-	}
-	// get default vpcid
-	if vpcid == "" {
-		args := bcc.ListVpcArgs{
-			IsDefault: true,
-		}
-		vpcs, err := bc.clientSet.Bcc().ListVpc(&args)
-		if err != nil {
-			return vpcid, err
-		}
-		if len(vpcs) > 0 {
-			return vpcs[0].VpcID, err
-		}
-	}
-	return vpcid, nil
-}
-
 func (bc *BCECloud) getVpcRouteTable() ([]bcc.RouteRule, error) {
 	vpcid, err := bc.getVpcID()
 	if err != nil {

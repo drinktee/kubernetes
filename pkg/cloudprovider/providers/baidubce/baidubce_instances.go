@@ -18,6 +18,7 @@ package baidubce
 
 import (
 	"fmt"
+	"net"
 
 	"github.com/drinktee/bce-sdk-go/bcc"
 	"k8s.io/apimachinery/pkg/types"
@@ -27,13 +28,14 @@ import (
 
 // NodeAddresses returns the addresses of the specified instance.
 func (bc *BCECloud) NodeAddresses(name types.NodeName) ([]v1.NodeAddress, error) {
-	ip, err := bc.getIPForMachine(name)
-	if err != nil {
-		return nil, err
+	nameStr := string(name)
+	nodeIP := net.ParseIP(nameStr)
+	if nodeIP == nil {
+		return nil, fmt.Errorf("Node name: %s should be an IP address", nameStr)
 	}
 	return []v1.NodeAddress{
-		{Type: v1.NodeInternalIP, Address: ip},
-		{Type: v1.NodeHostName, Address: string(name)},
+		{Type: v1.NodeInternalIP, Address: nameStr},
+		{Type: v1.NodeHostName, Address: nameStr},
 	}, nil
 }
 
@@ -51,14 +53,34 @@ func (bc *BCECloud) getIPForMachine(name types.NodeName) (string, error) {
 	return "", cloudprovider.InstanceNotFound
 }
 
+func (bc *BCECloud) getVpcID() (string, error) {
+	if bc.VpcID == "" {
+		master, err := bc.clientSet.Bcc().DescribeInstance(bc.MasterID, nil)
+		if err != nil {
+			return "", err
+		}
+		bc.VpcID = master.VpcId
+		return master.VpcId, nil
+	}
+	return bc.VpcID, nil
+}
+
 func (bc *BCECloud) getVirtualMachine(name types.NodeName) (vm bcc.Instance, err error) {
+	nameStr := string(name)
+	nodeIP := net.ParseIP(nameStr)
+	if nodeIP == nil {
+		return vm, fmt.Errorf("Node name: %s should be an IP address", nameStr)
+	}
+	vpcid, err := bc.getVpcID()
+	if err != nil {
+		return vm, err
+	}
 	ins, err := bc.clientSet.Bcc().ListInstances(nil)
 	if err != nil {
 		return vm, err
 	}
-	insName := string(name)
 	for _, i := range ins {
-		if i.InstanceName == insName {
+		if i.InternalIP == nameStr && i.VpcId == vpcid {
 			return i, nil
 		}
 	}
@@ -89,7 +111,7 @@ func (bc *BCECloud) InstanceType(name types.NodeName) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return string("NoType"), nil
+	return string("BCC"), nil
 }
 
 // AddSSHKeyToAllInstances adds an SSH public key as a legal identity for all instances

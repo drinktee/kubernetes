@@ -22,6 +22,8 @@ import (
 	"io/ioutil"
 	"time"
 
+	"fmt"
+
 	baidubce "github.com/drinktee/bce-sdk-go/bce"
 	"github.com/drinktee/bce-sdk-go/clientset"
 	"k8s.io/kubernetes/pkg/cloudprovider"
@@ -38,8 +40,8 @@ type BCECloud struct {
 
 // CloudConfig wraps the settings for the BCE cloud provider.
 type CloudConfig struct {
-	ClusterID       string `json:"clusterId"`
-	ClusterName     string `json:"clusterName"`
+	ClusterID       string `json:"ClusterId"`
+	ClusterName     string `json:"ClusterName"`
 	AccessKeyID     string `json:"AccessKeyID"`
 	SecretAccessKey string `json:"SecretAccessKey"`
 	Region          string `json:"Region"`
@@ -62,6 +64,9 @@ func NewBCECloud(configReader io.Reader) (cloudprovider.Interface, error) {
 	err = json.Unmarshal(configContents, &bce)
 	if err != nil {
 		return nil, err
+	}
+	if bce.MasterID == "" {
+		return nil, fmt.Errorf("Cloud config mast have a Master ID")
 	}
 	cred := baidubce.NewCredentials(bce.AccessKeyID, bce.SecretAccessKey)
 	bceConfig := baidubce.NewConfig(cred)
