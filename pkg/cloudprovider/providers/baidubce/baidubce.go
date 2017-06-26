@@ -84,6 +84,7 @@ func NewBCECloud(configReader io.Reader) (cloudprovider.Interface, error) {
 	bce.clientSet.Blb().SetDebug(true)
 	bce.clientSet.Eip().SetDebug(true)
 	bce.clientSet.Bcc().SetDebug(true)
+	bce.clientSet.Cce().SetDebug(true)
 	return &bce, nil
 }
 
