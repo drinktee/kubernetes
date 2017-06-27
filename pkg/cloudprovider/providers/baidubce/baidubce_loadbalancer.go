@@ -170,10 +170,18 @@ func (bc *BCECloud) EnsureLoadBalancerDeleted(clusterName string, service *v1.Se
 	glog.V(4).Infof("EnsureLoadBalancerDeleted getBCELoadBalancer : %s", lb.Name)
 	if err != nil {
 		glog.V(4).Infof("EnsureLoadBalancerDeleted get error: %s", err.Error())
+		delErr := bc.deleteEipByName(&lb)
+		if delErr != nil {
+			glog.V(4).Infof("deleteEipByName get error: %s", delErr.Error())
+		}
 		return err
 	}
 	if !existsLb {
 		glog.V(4).Infof("BCELoadBalancer not exists: %s", lbName)
+		delErr := bc.deleteEipByName(&lb)
+		if delErr != nil {
+			glog.V(4).Infof("deleteEipByName get error: %s", delErr.Error())
+		}
 		return nil
 	}
 	// start delete blb and eip, delete blb first
@@ -531,6 +539,55 @@ func (bc *BCECloud) deleteEIP(lb *blb.LoadBalancer) error {
 	err = bc.clientSet.Eip().DeleteEip(&args)
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func (bc *BCECloud) deleteEipByName(lb *blb.LoadBalancer) error {
+	alleip, err := bc.clientSet.Eip().GetEips(nil)
+	if err != nil {
+		return err
+	}
+	var delEip string
+	for _, e := range alleip {
+		if e.Name == lb.Name {
+			delEip = e.Eip
+			unbindArgs := eip.EipArgs{
+				Ip: delEip,
+			}
+			err := bc.clientSet.Eip().UnbindEip(&unbindArgs)
+			if err != nil {
+				glog.Errorf("Unbind Eip error : %s", err.Error())
+			}
+		}
+	}
+	if delEip != "" {
+		argsGet := eip.GetEipsArgs{
+			Ip: delEip,
+		}
+		eips, err := bc.clientSet.Eip().GetEips(&argsGet)
+		if err != nil {
+			return err
+		}
+		if len(eips) > 0 {
+			eipStatus := eips[0].Status
+			for index := 0; (index < 10) && (eipStatus != "available"); index++ {
+				glog.V(4).Infof("Eip: %s is not available, retry:  %d", delEip, index)
+				time.Sleep(10 * time.Second)
+				eips, err := bc.clientSet.Eip().GetEips(&argsGet)
+				if err != nil {
+					return err
+				}
+				eipStatus = eips[0].Status
+			}
+		}
+		args := eip.EipArgs{
+			Ip: delEip,
+		}
+		err = bc.clientSet.Eip().DeleteEip(&args)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
