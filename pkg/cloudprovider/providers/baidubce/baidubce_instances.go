@@ -40,7 +40,7 @@ func (bc *BCECloud) NodeAddresses(name types.NodeName) ([]v1.NodeAddress, error)
 }
 
 func (bc *BCECloud) getIPForMachine(name types.NodeName) (string, error) {
-	ins, err := bc.clientSet.Bcc().ListInstances(nil)
+	ins, err := bc.clientSet.Cce().ListInstances(bc.ClusterID)
 	if err != nil {
 		return "", err
 	}
@@ -55,39 +55,51 @@ func (bc *BCECloud) getIPForMachine(name types.NodeName) (string, error) {
 
 func (bc *BCECloud) getVpcID() (string, error) {
 	if bc.VpcID == "" {
-		master, err := bc.clientSet.Bcc().DescribeInstance(bc.MasterID, nil)
+		ins, err := bc.clientSet.Cce().ListInstances(bc.ClusterID)
 		if err != nil {
 			return "", err
 		}
-		bc.VpcID = master.VpcId
-		return master.VpcId, nil
+		if len(ins) > 0 {
+			bc.VpcID = ins[0].VpcId
+		} else {
+			return "", fmt.Errorf("Get vpcid error")
+		}
 	}
 	return bc.VpcID, nil
 }
 
+// getVirtualMachine get instance info by OPENAPI
 func (bc *BCECloud) getVirtualMachine(name types.NodeName) (vm bcc.Instance, err error) {
 	nameStr := string(name)
 	nodeIP := net.ParseIP(nameStr)
 	if nodeIP == nil {
 		return vm, fmt.Errorf("Node name: %s should be an IP address", nameStr)
 	}
-	vpcid, err := bc.getVpcID()
-	if err != nil {
-		return vm, err
-	}
-	ins, err := bc.clientSet.Bcc().ListInstances(nil)
+	ins, err := bc.clientSet.Cce().ListInstances(bc.ClusterID)
 	if err != nil {
 		return vm, err
 	}
 	for _, i := range ins {
 		if i.InternalIP == nameStr {
-			v, err := bc.clientSet.Bcc().DescribeInstance(i.InstanceId, nil)
-			if err != nil {
-				return vm, err
-			}
-			if v.VpcId == vpcid {
-				return *v, nil
-			}
+			return i, nil
+		}
+	}
+	return vm, cloudprovider.InstanceNotFound
+}
+
+func (bc *BCECloud) getInstanceByCluster(name types.NodeName) (vm bcc.Instance, err error) {
+	nameStr := string(name)
+	nodeIP := net.ParseIP(nameStr)
+	if nodeIP == nil {
+		return vm, fmt.Errorf("Node name: %s should be an IP address", nameStr)
+	}
+	ins, err := bc.clientSet.Cce().ListInstances(bc.ClusterID)
+	if err != nil {
+		return vm, err
+	}
+	for _, i := range ins {
+		if i.InternalIP == nameStr {
+			return i, nil
 		}
 	}
 	return vm, cloudprovider.InstanceNotFound
@@ -101,7 +113,7 @@ func (bc *BCECloud) ExternalID(name types.NodeName) (string, error) {
 // InstanceID returns the cloud provider ID of the specified instance.
 // Note that if the instance does not exist or is no longer running, we must return ("", cloudprovider.InstanceNotFound)
 func (bc *BCECloud) InstanceID(name types.NodeName) (string, error) {
-	machine, err := bc.getVirtualMachine(name)
+	machine, err := bc.getInstanceByCluster(name)
 	if err != nil {
 		return "", err
 	}
@@ -113,10 +125,6 @@ func (bc *BCECloud) InstanceID(name types.NodeName) (string, error) {
 // (Implementer Note): This is used by kubelet. Kubelet will label the node. Real log from kubelet:
 //       Adding node label from cloud provider: beta.kubernetes.io/instance-type=[value]
 func (bc *BCECloud) InstanceType(name types.NodeName) (string, error) {
-	_, err := bc.getVirtualMachine(name)
-	if err != nil {
-		return "", err
-	}
 	return string("BCC"), nil
 }
 
@@ -129,6 +137,7 @@ func (bc *BCECloud) AddSSHKeyToAllInstances(user string, keyData []byte) error {
 // CurrentNodeName returns the name of the node we are currently running on
 // On most clouds (e.g. GCE) this is the hostname, so we provide the hostname
 func (bc *BCECloud) CurrentNodeName(hostname string) (types.NodeName, error) {
+	// excepting hostname is an ip address
 	nodeIP := net.ParseIP(hostname)
 	if nodeIP != nil {
 		bc.NodeIP = hostname

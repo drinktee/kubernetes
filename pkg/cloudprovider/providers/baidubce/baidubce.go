@@ -69,6 +69,9 @@ func NewBCECloud(configReader io.Reader) (cloudprovider.Interface, error) {
 	if bce.MasterID == "" {
 		return nil, fmt.Errorf("Cloud config mast have a Master ID")
 	}
+	if bce.ClusterID == "" {
+		return nil, fmt.Errorf("Cloud config mast have a ClusterID")
+	}
 	cred := baidubce.NewCredentials(bce.AccessKeyID, bce.SecretAccessKey)
 	bceConfig := baidubce.NewConfig(cred)
 	bceConfig.Region = bce.Region
@@ -81,6 +84,7 @@ func NewBCECloud(configReader io.Reader) (cloudprovider.Interface, error) {
 	if err != nil {
 		return nil, err
 	}
+	// set debug for testing
 	bce.clientSet.Blb().SetDebug(true)
 	bce.clientSet.Eip().SetDebug(true)
 	bce.clientSet.Bcc().SetDebug(true)

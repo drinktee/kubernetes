@@ -28,7 +28,8 @@ func (bc *BCECloud) GetZone() (cloudprovider.Zone, error) {
 		Region:        bc.Region,
 	}
 	if bc.NodeIP != "" {
-		ins, err := bc.getVirtualMachine(types.NodeName(bc.NodeIP))
+		ins, err := bc.getInstanceByCluster(types.NodeName(bc.NodeIP))
+		// ins, err := bc.getVirtualMachine(types.NodeName(bc.NodeIP))
 		if err != nil {
 			return zone, err
 		}
