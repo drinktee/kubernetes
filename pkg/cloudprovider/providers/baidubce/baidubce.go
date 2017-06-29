@@ -72,14 +72,18 @@ func NewBCECloud(configReader io.Reader) (cloudprovider.Interface, error) {
 	if bce.ClusterID == "" {
 		return nil, fmt.Errorf("Cloud config mast have a ClusterID")
 	}
+	if bce.Endpoint == "" {
+		return nil, fmt.Errorf("Cloud config mast have a Endpoint")
+	}
 	cred := baidubce.NewCredentials(bce.AccessKeyID, bce.SecretAccessKey)
 	bceConfig := baidubce.NewConfig(cred)
 	bceConfig.Region = bce.Region
 	// timeout need to set
 	bceConfig.Timeout = 10 * time.Second
-	if bce.Endpoint != "" {
-		bceConfig.Endpoint = bce.Endpoint
-	}
+	// fix endpoint
+	fixEndpoint := bce.Endpoint + "/internal-api"
+	bceConfig.Endpoint = fixEndpoint
+
 	bce.clientSet, err = clientset.NewFromConfig(bceConfig)
 	if err != nil {
 		return nil, err
@@ -88,6 +92,8 @@ func NewBCECloud(configReader io.Reader) (cloudprovider.Interface, error) {
 	bce.clientSet.Blb().SetDebug(true)
 	bce.clientSet.Eip().SetDebug(true)
 	bce.clientSet.Bcc().SetDebug(true)
+	// cce endpoint is different
+	bce.clientSet.Cce().Endpoint = bce.Endpoint
 	bce.clientSet.Cce().SetDebug(true)
 	return &bce, nil
 }
