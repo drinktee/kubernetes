@@ -50,7 +50,7 @@ func TestNewCloud(t *testing.T) {
 		if fix != bc.clientSet.Blb().Endpoint {
 			t.Errorf("fix endpoint error %s", fix)
 		}
-		if cceEnd != bc.Endpoint {
+		if cceEnd != fix {
 			t.Errorf("cceend error %s", cceEnd)
 		}
 
@@ -81,9 +81,6 @@ func newBceCloud() (*BCECloud, error) {
 	}
 	bc.clientSet.Blb().SetDebug(true)
 	bc.clientSet.Eip().SetDebug(true)
-	// cce endpoint is different
-	bc.clientSet.Cce().Endpoint = bc.Endpoint
 	bc.clientSet.Cce().SetDebug(true)
-	// fmt.Println(bc.clientSet.Blb().Endpoint)
 	return &bc, nil
 }
