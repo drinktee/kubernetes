@@ -79,8 +79,22 @@ func (bc *BCECloud) CreateRoute(clusterName string, nameHint string, kubeRoute *
 	if len(vpcRoutes) < 1 {
 		return fmt.Errorf("VPC route length error: length is : %d", len(vpcRoutes))
 	}
+	var insID string
+	inss, err := bc.clientSet.Cce().ListInstances(bc.ClusterID)
+	if err != nil {
+		return err
+	}
+	for _, ins := range inss {
+		if ins.InternalIP == string(kubeRoute.TargetNode) {
+			insID = ins.InstanceId
+		}
+	}
 	var needDelete []string
 	for _, vr := range vpcRoutes {
+		if vr.DestinationAddress == kubeRoute.DestinationCIDR && vr.SourceAddress == "0.0.0.0/0" && vr.NexthopID == insID {
+			glog.V(4).Infof("Route rule already exists.")
+			return nil
+		}
 		if vr.DestinationAddress == kubeRoute.DestinationCIDR && vr.SourceAddress == "0.0.0.0/0" {
 			needDelete = append(needDelete, vr.RouteRuleID)
 		}
@@ -94,16 +108,7 @@ func (bc *BCECloud) CreateRoute(clusterName string, nameHint string, kubeRoute *
 			}
 		}
 	}
-	var insID string
-	inss, err := bc.clientSet.Cce().ListInstances(bc.ClusterID)
-	if err != nil {
-		return err
-	}
-	for _, ins := range inss {
-		if ins.InternalIP == string(kubeRoute.TargetNode) {
-			insID = ins.InstanceId
-		}
-	}
+
 	args := bcc.CreateRouteRuleArgs{
 		RouteTableID:       vpcRoutes[0].RouteTableID,
 		NexthopType:        "custom",
