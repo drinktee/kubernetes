@@ -95,10 +95,15 @@ func (bc *BCECloud) EnsureLoadBalancer(clusterName string, service *v1.Service, 
 	lbName := cloudprovider.GetLoadBalancerName(service)
 	if !exists {
 		glog.V(4).Infoln("EnsureLoadBalancer create not exists blb!")
-		args := blb.CreateLoadBalancerArgs{
-			Name: lbName,
+		vpc, err := bc.getVpcID()
+		if err != nil {
+			return nil, fmt.Errorf("Can't get VPC ID: %v", err)
 		}
-		_, err := bc.clientSet.Blb().CreateLoadBalancer(&args)
+		args := blb.CreateLoadBalancerArgs{
+			Name:  lbName,
+			VpcID: vpc,
+		}
+		_, err = bc.clientSet.Blb().CreateLoadBalancer(&args)
 		if err != nil {
 			return nil, err
 		}
