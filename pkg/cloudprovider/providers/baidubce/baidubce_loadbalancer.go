@@ -143,6 +143,12 @@ func (bc *BCECloud) EnsureLoadBalancer(clusterName string, service *v1.Service, 
 	// TODO
 	pubIP, err := bc.createEIP(&lb)
 	if err != nil {
+		if pubIP != "" {
+			args := eip.EipArgs{
+				Ip: pubIP,
+			}
+			bc.clientSet.Eip().DeleteEip(&args)
+		}
 		return nil, err
 	}
 	glog.V(4).Infof("EnsureLoadBalancer: LoadBalancerIngress= %v  pubIP is %s", lb.PublicIp, pubIP)
@@ -506,7 +512,7 @@ func (bc *BCECloud) createEIP(lb *blb.LoadBalancer) (string, error) {
 	err = bc.clientSet.Eip().BindEip(argsBind)
 	if err != nil {
 		glog.V(4).Infof("BindEip error: %v", err)
-		return "", err
+		return ip, err
 	}
 	lb.PublicIp = ip
 	glog.V(4).Infof("createEIP: lb.PublicIp is %s", lb.PublicIp)
