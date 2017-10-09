@@ -49,6 +49,7 @@ type CloudConfig struct {
 	MasterID        string `json:"MasterId"`
 	Endpoint        string `json:"Endpoint"`
 	NodeIP          string `json:"NodeIP"`
+	Debug           bool   `json:"Debug"`
 }
 
 func init() {
@@ -89,10 +90,12 @@ func NewBCECloud(configReader io.Reader) (cloudprovider.Interface, error) {
 		return nil, err
 	}
 	// set debug for testing
-	bce.clientSet.Blb().SetDebug(true)
-	bce.clientSet.Eip().SetDebug(true)
-	bce.clientSet.Bcc().SetDebug(true)
-	bce.clientSet.Cce().SetDebug(true)
+	if bce.Debug {
+		bce.clientSet.Blb().SetDebug(true)
+		bce.clientSet.Eip().SetDebug(true)
+		bce.clientSet.Bcc().SetDebug(true)
+		bce.clientSet.Cce().SetDebug(true)
+	}
 	return &bce, nil
 }
 
