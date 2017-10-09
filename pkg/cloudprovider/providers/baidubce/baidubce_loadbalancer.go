@@ -486,7 +486,7 @@ func (bc *BCECloud) createEIP(lb *blb.LoadBalancer) (string, error) {
 		}
 		glog.V(4).Infof("Eip status is: %s", eipStatus)
 	}
-	lb.Status = "unknow" //add here to do loop
+	lb.Status = "unknown" //add here to do loop
 	for index := 0; (index < 10) && (lb.Status != "available"); index++ {
 		glog.V(4).Infof("BLB: %s is not available, retry:  %d", lb.Name, index)
 		time.Sleep(10 * time.Second)
