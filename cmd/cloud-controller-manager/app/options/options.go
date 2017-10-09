@@ -47,7 +47,7 @@ func NewCloudControllerManagerServer() *CloudControllerManagerServer {
 			Address:                 "0.0.0.0",
 			ConcurrentServiceSyncs:  1,
 			MinResyncPeriod:         metav1.Duration{Duration: 12 * time.Hour},
-			NodeMonitorPeriod:       metav1.Duration{Duration: 5 * time.Second},
+			NodeMonitorPeriod:       metav1.Duration{Duration: 50 * time.Second},
 			ClusterName:             "kubernetes",
 			ConfigureCloudRoutes:    true,
 			ContentType:             "application/vnd.kubernetes.protobuf",

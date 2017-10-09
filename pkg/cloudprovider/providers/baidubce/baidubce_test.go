@@ -18,6 +18,7 @@ var cloudconfig = `{
     "Region": "bj",
     "MasterID": "i-advasdv",
 	"ClusterID":"k7s",
+	"Debug":true,
 	"Endpoint":"www.baidu.com"
 }`
 
