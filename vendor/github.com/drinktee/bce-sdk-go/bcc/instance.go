@@ -6,6 +6,20 @@ import (
 	"github.com/drinktee/bce-sdk-go/bce"
 )
 
+const (
+	InstanceStatusRunning            string = "Running"
+	InstanceStatusStarting           string = "Starting"
+	InstanceStatusStopping           string = "Stopping"
+	InstanceStatusStopped            string = "Stopped"
+	InstanceStatusDeleted            string = "Deleted"
+	InstanceStatusScaling            string = "Scaling"
+	InstanceStatusExpired            string = "Expired"
+	InstanceStatusError              string = "Error"
+	InstanceStatusSnapshotProcessing string = "SnapshotProcessing"
+	InstanceStatusImageProcessing    string = "ImageProcessing"
+)
+
+// Instance define instance model
 type Instance struct {
 	InstanceId            string `json:"id"`
 	InstanceName          string `json:"name"`
@@ -17,6 +31,7 @@ type Instance struct {
 	PublicIP              string `json:"publicIp"`
 	InternalIP            string `json:"internalIp"`
 	CpuCount              int    `json:"cpuCount"`
+	GpuCount              int    `json:"gpuCount"`
 	MemoryCapacityInGB    int    `json:"memoryCapacityInGB"`
 	localDiskSizeInGB     int    `json:"localDiskSizeInGB"`
 	ImageId               string `json:"imageId"`
@@ -70,9 +85,10 @@ func (c *Client) ListInstances(option *bce.SignOption) ([]Instance, error) {
 	return insList.Instances, nil
 }
 
-func (c *Client) DescribeInstance(instanceId string, option *bce.SignOption) (*Instance, error) {
+// DescribeInstance describe a instance
+func (c *Client) DescribeInstance(instanceID string, option *bce.SignOption) (*Instance, error) {
 
-	req, err := bce.NewRequest("GET", c.GetURL("v2/instance"+"/"+instanceId, nil), nil)
+	req, err := bce.NewRequest("GET", c.GetURL("v2/instance"+"/"+instanceID, nil), nil)
 
 	if err != nil {
 		return nil, err

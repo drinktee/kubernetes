@@ -46,6 +46,7 @@ type CloudConfig struct {
 	SecretAccessKey string `json:"SecretAccessKey"`
 	Region          string `json:"Region"`
 	VpcID           string `json:"VpcId"`
+	SubnetID        string `json:"SubnetId"`
 	MasterID        string `json:"MasterId"`
 	Endpoint        string `json:"Endpoint"`
 	NodeIP          string `json:"NodeIP"`

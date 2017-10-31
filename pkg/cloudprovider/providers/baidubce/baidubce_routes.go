@@ -3,6 +3,8 @@ package baidubce
 import (
 	"fmt"
 
+	"github.com/drinktee/bce-sdk-go/cce"
+
 	"github.com/drinktee/bce-sdk-go/bcc"
 	"github.com/golang/glog"
 	"k8s.io/apimachinery/pkg/types"
@@ -87,6 +89,10 @@ func (bc *BCECloud) CreateRoute(clusterName string, nameHint string, kubeRoute *
 	for _, ins := range inss {
 		if ins.InternalIP == string(kubeRoute.TargetNode) {
 			insID = ins.InstanceId
+		}
+		if ins.Status == cce.InstanceStatusCreateFailed || ins.Status == cce.InstanceStatusDeleted || ins.Status == cce.InstanceStatusDeleting || ins.Status == cce.InstanceStatusError {
+			glog.V(4).Infof("No need to create route, instance has a wrong status: %s", ins.Status)
+			return nil
 		}
 	}
 	var needDelete []string

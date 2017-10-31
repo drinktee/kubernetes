@@ -100,8 +100,9 @@ func (bc *BCECloud) EnsureLoadBalancer(clusterName string, service *v1.Service, 
 			return nil, fmt.Errorf("Can't get VPC ID: %v", err)
 		}
 		args := blb.CreateLoadBalancerArgs{
-			Name:  lbName,
-			VpcID: vpc,
+			Name:     lbName,
+			VpcID:    vpc,
+			SubnetID: bc.SubnetID,
 		}
 		_, err = bc.clientSet.Blb().CreateLoadBalancer(&args)
 		if err != nil {

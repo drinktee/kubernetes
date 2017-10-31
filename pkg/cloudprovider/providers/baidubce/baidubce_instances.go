@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/drinktee/bce-sdk-go/bcc"
+	"github.com/drinktee/bce-sdk-go/cce"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/kubernetes/pkg/api/v1"
 	"k8s.io/kubernetes/pkg/cloudprovider"
@@ -61,6 +61,7 @@ func (bc *BCECloud) getVpcID() (string, error) {
 		}
 		if len(ins) > 0 {
 			bc.VpcID = ins[0].VpcId
+			bc.SubnetID = ins[0].SubnetId
 		} else {
 			return "", fmt.Errorf("Get vpcid error")
 		}
@@ -69,7 +70,7 @@ func (bc *BCECloud) getVpcID() (string, error) {
 }
 
 // getVirtualMachine get instance info by OPENAPI
-func (bc *BCECloud) getVirtualMachine(name types.NodeName) (vm bcc.Instance, err error) {
+func (bc *BCECloud) getVirtualMachine(name types.NodeName) (vm cce.CceInstance, err error) {
 	nameStr := string(name)
 	nodeIP := net.ParseIP(nameStr)
 	if nodeIP == nil {
@@ -87,7 +88,7 @@ func (bc *BCECloud) getVirtualMachine(name types.NodeName) (vm bcc.Instance, err
 	return vm, cloudprovider.InstanceNotFound
 }
 
-func (bc *BCECloud) getInstanceByCluster(name types.NodeName) (vm bcc.Instance, err error) {
+func (bc *BCECloud) getInstanceByCluster(name types.NodeName) (vm cce.CceInstance, err error) {
 	nameStr := string(name)
 	nodeIP := net.ParseIP(nameStr)
 	if nodeIP == nil {
