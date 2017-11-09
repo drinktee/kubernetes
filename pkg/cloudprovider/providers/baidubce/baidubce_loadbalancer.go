@@ -71,7 +71,7 @@ func (bc *BCECloud) getBCELoadBalancer(name string) (lb blb.LoadBalancer, exists
 // parameters as read-only and not modify them.
 // Parameter 'clusterName' is the name of the cluster as presented to kube-controller-manager
 func (bc *BCECloud) EnsureLoadBalancer(clusterName string, service *v1.Service, nodes []*v1.Node) (*v1.LoadBalancerStatus, error) {
-	glog.V(2).Infof("baidubce.EnsureLoadBalancer(%v, %v, %v, %v, %v, %v, %v, %v,%v)",
+	glog.V(4).Infof("baidubce.EnsureLoadBalancer(%v, %v, %v, %v, %v, %v, %v, %v,%v)",
 		clusterName, service.Namespace, service.Name, bc.Region, service.Spec.LoadBalancerIP, service.Spec.Ports, nodes)
 	// if service.Spec.SessionAffinity != v1.ServiceAffinityNone {
 	// 	// Does not support SessionAffinity

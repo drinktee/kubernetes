@@ -35,7 +35,7 @@ const ProviderName = "baidubce"
 // BCECloud is an implementation of Interface, LoadBalancer and Instances for Baidu Compute Engine.
 type BCECloud struct {
 	CloudConfig
-	clientSet *clientset.Clientset
+	clientSet clientset.Interface
 }
 
 // CloudConfig wraps the settings for the BCE cloud provider.
@@ -85,7 +85,9 @@ func NewBCECloud(configReader io.Reader) (cloudprovider.Interface, error) {
 	// fix endpoint
 	fixEndpoint := bce.Endpoint + "/internal-api"
 	bceConfig.Endpoint = fixEndpoint
-
+	// http request from cce's kubernetes has an useragent header
+	// example: useragent: cce-k8s:c-adfdf
+	bceConfig.UserAgent = "cce-k8s:" + bce.ClusterID
 	bce.clientSet, err = clientset.NewFromConfig(bceConfig)
 	if err != nil {
 		return nil, err
