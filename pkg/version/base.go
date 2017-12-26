@@ -57,8 +57,8 @@ var (
 	// directory.  See also https://git-scm.com/docs/gitattributes
 	// gitVersion   = "v0.0.0-master+$Format:%h$"
 	// gitCommit    = "$Format:%H$" // sha1 from git, output of $(git rev-parse HEAD)
-	gitVersion    string = "v1.6.2"
-	gitVersionCce string = "v1.6.2"
+	gitVersion    string = "v1.8.6"
+	gitVersionCce string = "v1.8.6"
 	gitCommit     string = "" // sha1 from git, output of $(git rev-parse HEAD)
 
 	gitTreeState = "" // state of git tree, either "clean" or "dirty"
