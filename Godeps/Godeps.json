@@ -1,6 +1,6 @@
 {
 	"ImportPath": "k8s.io/kubernetes",
-	"GoVersion": "go1.8",
+	"GoVersion": "go1.9",
 	"GodepVersion": "v79",
 	"Packages": [
 		"github.com/onsi/ginkgo/ginkgo",
@@ -16,6 +16,18 @@
 			"ImportPath": "bitbucket.org/ww/goautoneg",
 			"Comment": "null-5",
 			"Rev": "75cd24fc2f2c2a2088577d12123ddee5f54e0675"
+		},
+		{
+			"ImportPath": "cceevent/bigpiperpc",
+			"Rev": "1fa1c6b3187530a7e9a1b31122de1fb52e770c03"
+		},
+		{
+			"ImportPath": "cceevent/event",
+			"Rev": "1fa1c6b3187530a7e9a1b31122de1fb52e770c03"
+		},
+		{
+			"ImportPath": "cceevent/runtime",
+			"Rev": "1fa1c6b3187530a7e9a1b31122de1fb52e770c03"
 		},
 		{
 			"ImportPath": "cloud.google.com/go/compute/metadata",
@@ -323,6 +335,14 @@
 			"ImportPath": "github.com/aws/aws-sdk-go/service/sts",
 			"Comment": "v1.6.10",
 			"Rev": "63ce630574a5ec05ecd8e8de5cea16332a5a684d"
+		},
+		{
+			"ImportPath": "github.com/baidu-golang/pbrpc",
+			"Rev": "b8d5721090ef177251424a863d4df70b5eb53d4c"
+		},
+		{
+			"ImportPath": "github.com/baidu-golang/pbrpc/link",
+			"Rev": "b8d5721090ef177251424a863d4df70b5eb53d4c"
 		},
 		{
 			"ImportPath": "github.com/beorn7/perks/quantile",
@@ -1105,6 +1125,34 @@
 			"Rev": "449fdfce4d962303d702fec724ef0ad181c92528"
 		},
 		{
+			"ImportPath": "github.com/drinktee/bce-sdk-go/bcc",
+			"Rev": "66d43103bc6630352566a771ec1f64837ea79f96"
+		},
+		{
+			"ImportPath": "github.com/drinktee/bce-sdk-go/bce",
+			"Rev": "66d43103bc6630352566a771ec1f64837ea79f96"
+		},
+		{
+			"ImportPath": "github.com/drinktee/bce-sdk-go/blb",
+			"Rev": "66d43103bc6630352566a771ec1f64837ea79f96"
+		},
+		{
+			"ImportPath": "github.com/drinktee/bce-sdk-go/cce",
+			"Rev": "66d43103bc6630352566a771ec1f64837ea79f96"
+		},
+		{
+			"ImportPath": "github.com/drinktee/bce-sdk-go/clientset",
+			"Rev": "66d43103bc6630352566a771ec1f64837ea79f96"
+		},
+		{
+			"ImportPath": "github.com/drinktee/bce-sdk-go/eip",
+			"Rev": "66d43103bc6630352566a771ec1f64837ea79f96"
+		},
+		{
+			"ImportPath": "github.com/drinktee/bce-sdk-go/util",
+			"Rev": "66d43103bc6630352566a771ec1f64837ea79f96"
+		},
+		{
 			"ImportPath": "github.com/elazarl/go-bindata-assetfs",
 			"Rev": "3dcc96556217539f50599357fb481ac0dc7439b9"
 		},
@@ -1374,6 +1422,10 @@
 		{
 			"ImportPath": "github.com/golang/protobuf/ptypes/timestamp",
 			"Rev": "4bd1920723d7b7c925de087aa32e2187708897f7"
+		},
+		{
+			"ImportPath": "github.com/golang/snappy",
+			"Rev": "553a641470496b2327abcac10b36396bd98e45c9"
 		},
 		{
 			"ImportPath": "github.com/google/btree",
@@ -1886,6 +1938,21 @@
 			"ImportPath": "github.com/jmespath/go-jmespath",
 			"Comment": "0.2.2",
 			"Rev": "3433f3ea46d9f8019119e7dd41274e112a2359a9"
+		},
+		{
+			"ImportPath": "github.com/jolestar/go-commons-pool",
+			"Comment": "v1.1.2",
+			"Rev": "2bda2d8f3bdf571db901f02378e92edd916380fa"
+		},
+		{
+			"ImportPath": "github.com/jolestar/go-commons-pool/collections",
+			"Comment": "v1.1.2",
+			"Rev": "2bda2d8f3bdf571db901f02378e92edd916380fa"
+		},
+		{
+			"ImportPath": "github.com/jolestar/go-commons-pool/concurrent",
+			"Comment": "v1.1.2",
+			"Rev": "2bda2d8f3bdf571db901f02378e92edd916380fa"
 		},
 		{
 			"ImportPath": "github.com/jonboulle/clockwork",
@@ -2523,6 +2590,11 @@
 			"ImportPath": "github.com/russross/blackfriday",
 			"Comment": "v1.4-2-g300106c",
 			"Rev": "300106c228d52c8941d4b3de6054a6062a86dda3"
+		},
+		{
+			"ImportPath": "github.com/satori/go.uuid",
+			"Comment": "v1.1.0-8-g5bf94b6",
+			"Rev": "5bf94b69c6b68ee1b541973bb8e1144db23a194b"
 		},
 		{
 			"ImportPath": "github.com/satori/uuid",

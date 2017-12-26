@@ -1,0 +1,21 @@
+package bigpipe.rpc;
+option cc_generic_services = true;
+message BpEntry {                                                                                                                             
+        required    string   pipe = 1;         //发往哪个pipe(topic)里面的
+        required    string   acl_name = 2;     //用户名
+        required    string   acl_token = 3;    //
+        required    int64    expired = 4;      //token过期时间
+        required    string   msg_guid = 5;     //去重ID，pipe+acl_name+本ID为index去重消息，保持webservice的HTTP语义
+        required    uint32   pipelet_id = 6;   //pipelet划分 范围从1开始
+        required    bytes    message = 7;      //序列化后的protobuf的数据包                                                                                                   
+};
+message BpResponse {                                                                                                                             
+        required    int32   status = 1;         // 保持webservice的HTTP语义
+        required    string  errmsg = 2;         // 保持webservice的HTTP语义  status == OK 这个值为"" 
+        required    uint64  pipelet_msg_id = 3; // msg在pipelet里面发送成功后的消息ID号，落日志用于后期追查消息
+};
+service ProxyService {
+        rpc SendBp(BpEntry)  returns (BpResponse);
+        // TODO
+        // rpc SendAFS(Entry) returns (Response);
+}
