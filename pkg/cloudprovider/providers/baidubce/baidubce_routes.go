@@ -124,7 +124,7 @@ func (bc *BCECloud) CreateRoute(clusterName string, nameHint string, kubeRoute *
 		SourceAddress:      "0.0.0.0/0",
 		NexthopID:          insID,
 	}
-	descRoute := fmt.Sprintf("CreateRoute: DestinationAddress is %s , NexthopID is : %s", args.DestinationAddress, args.NexthopID)
+	descRoute := fmt.Sprintf("创建路由: 目的IP %s , 下一跳 %s", args.DestinationAddress, args.NexthopID)
 	glog.V(4).Infof(descRoute)
 	routeID, err := bc.clientSet.Bcc().CreateRouteRule(&args)
 	bc.CceEvent(cceevent.RouteCceResource, routeID, routeID, cceevent.EventSourceKubernetes, descRoute)
@@ -148,7 +148,7 @@ func (bc *BCECloud) DeleteRoute(clusterName string, kubeRoute *cloudprovider.Rou
 				glog.V(4).Infof("Delete VPC route error %s", err.Error())
 				return err
 			}
-			descRoute := fmt.Sprintf("DeleteRoute: node=%q cidr=%q", kubeRoute.TargetNode, kubeRoute.DestinationCIDR)
+			descRoute := fmt.Sprintf("删除路由: 下一跳 %q 目的IP %q", kubeRoute.TargetNode, kubeRoute.DestinationCIDR)
 			bc.CceEvent(cceevent.RouteCceResource, vr.RouteRuleID, vr.RouteRuleID, cceevent.EventSourceKubernetes, descRoute)
 		}
 	}

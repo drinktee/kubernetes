@@ -109,7 +109,7 @@ func (bc *BCECloud) EnsureLoadBalancer(clusterName string, service *v1.Service, 
 		if err != nil {
 			return nil, err
 		}
-		bc.CceEvent(cceevent.BlbCceResource, resLb.LoadBalancerId, resLb.Name, cceevent.EventSourceKubernetes, fmt.Sprintf("BLB %s created", resLb.LoadBalancerId))
+		bc.CceEvent(cceevent.BlbCceResource, resLb.LoadBalancerId, resLb.Name, cceevent.EventSourceKubernetes, fmt.Sprintf("创建负载均衡 %s", resLb.LoadBalancerId))
 		argsDesc := blb.DescribeLoadBalancersArgs{
 			LoadBalancerName: lbName,
 		}
@@ -154,7 +154,7 @@ func (bc *BCECloud) EnsureLoadBalancer(clusterName string, service *v1.Service, 
 		}
 		return nil, err
 	}
-	bc.CceEvent(cceevent.EIPCceResource, "", pubIP, cceevent.EventSourceKubernetes, fmt.Sprintf("EIP %s created", pubIP))
+	bc.CceEvent(cceevent.EIPCceResource, "", pubIP, cceevent.EventSourceKubernetes, fmt.Sprintf("创建EIP %s", pubIP))
 	glog.V(4).Infof("EnsureLoadBalancer: LoadBalancerIngress= %v  pubIP is %s", lb.PublicIp, pubIP)
 	return &v1.LoadBalancerStatus{
 		Ingress: []v1.LoadBalancerIngress{{IP: pubIP}},
@@ -208,7 +208,7 @@ func (bc *BCECloud) EnsureLoadBalancerDeleted(clusterName string, service *v1.Se
 	if err != nil {
 		return err
 	}
-	bc.CceEvent(cceevent.BlbCceResource, args.LoadBalancerId, lb.Name, cceevent.EventSourceKubernetes, fmt.Sprintf("BLB %s deleted", lb.BlbId))
+	bc.CceEvent(cceevent.BlbCceResource, args.LoadBalancerId, lb.Name, cceevent.EventSourceKubernetes, fmt.Sprintf("删除负载均衡 %s", lb.BlbId))
 	// delete EIP
 	if lb.PublicIp != "" {
 		glog.V(4).Infof("Start delete EIP: %s", lb.PublicIp)
@@ -216,7 +216,7 @@ func (bc *BCECloud) EnsureLoadBalancerDeleted(clusterName string, service *v1.Se
 		if err != nil {
 			return err
 		}
-		bc.CceEvent(cceevent.EIPCceResource, lb.PublicIp, lb.PublicIp, cceevent.EventSourceKubernetes, fmt.Sprintf("EIP %s deleted", lb.PublicIp))
+		bc.CceEvent(cceevent.EIPCceResource, lb.PublicIp, lb.PublicIp, cceevent.EventSourceKubernetes, fmt.Sprintf("删除EIP %s", lb.PublicIp))
 	}
 	glog.V(2).Infof("delete(%s): FINISH", serviceName)
 	return nil
