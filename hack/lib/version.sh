@@ -82,6 +82,7 @@ kube::version::get_version_vars() {
         # that is problematic since new untracked .go files affect the build,
         # so use our idea of "dirty" from git status instead.
         # KUBE_GIT_VERSION+="-dirty"
+        echo "dirty"
       fi
 
 
